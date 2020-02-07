@@ -56,9 +56,8 @@ module.exports = {
   ],
   devtool: "eval",
   externals: {
-    sharp: "sharp",
+    sharp: "commonjs sharp",
     fs: "commonjs fs",
-    perf_hooks: "commonjs perf_hooks",
     ws: "commonjs ws"
   }
 };

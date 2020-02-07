@@ -9,16 +9,15 @@ const fs = require("fs");
 const PNG = require("pngjs").PNG;
 const puppeteer = require("puppeteer"); // headless chrome
 const pixelmatch = require("pixelmatch"); // image diffing
-const { performance } = require("perf_hooks");
-const sharp = require("sharp"); // image resizer
+//const { performance } = require("perf_hooks");
+//const sharp = require("sharp"); // image resizer
 
 // image paths
-const expectedImagePath = __dirname + "/client/expected/expected.png";
-const expectedResizedImagePath =
-  __dirname + "/client/expected/expected-resized.png";
-const actualImagePath = __dirname + "/client/actual/actual.png";
-const actualResizedImagePath = __dirname + "/client/actual/actual.png";
-const diffImagePath = __dirname + "/client/result/diff.png";
+const expectedImagePath = "/expected.png";
+const expectedResizedImagePath = "/expected-resized.png";
+const actualImagePath = "/actual.png";
+const actualResizedImagePath = "/actual-resized.png";
+const diffImagePath = "/diff.png";
 
 export default class Home extends Component {
   constructor(props) {
@@ -49,6 +48,7 @@ export default class Home extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.onDrop = this.onDrop.bind(this);
     this.reset = this.reset.bind(this);
+    this.run = this.run.bind(this);
   }
 
   // saves input into local variables
@@ -62,7 +62,7 @@ export default class Home extends Component {
   async handleSubmit(event) {
     this.setState({ displayProcessingModal: true });
     await this.saveExpectedResult();
-    //await this.processImages();
+    await this.processImages();
   }
 
   reset = () => {
@@ -93,15 +93,12 @@ export default class Home extends Component {
       myReader.onloadend = e => {
         let imageBase64String = myReader.result;
         let data = imageBase64String.replace(/^data:image\/\w+;base64,/, "");
-        let buf = new Buffer(data, "base64");
+        //let Uint8Array = new Buffer(data, "base64");
 
-        fs.writeFile(expectedImagePath, buf, function(err) {
-          if (err) throw err;
-          else {
-            console.log("Image saved");
-            resolve();
-          }
-        });
+        this.setState({ expectedImageBase64: data });
+        //console.log(this.state.expectedImageBase64);
+
+        resolve();
       };
       if (this.state.expectedImage) {
         myReader.readAsDataURL(this.state.expectedImage);
@@ -111,6 +108,17 @@ export default class Home extends Component {
 
   processImages = () => {
     return new Promise((resolve, reject) => {
+      console.log("Attempting to process images");
+      run(urlToCheck)
+        .then(function(result) {
+          resolve();
+        })
+        .catch(function(err) {
+          console.err(err);
+        });
+    });
+
+    /*return new Promise((resolve, reject) => {
       axios
         .post("/api/processImages", {
           urlToCheck: this.state.url
@@ -133,7 +141,49 @@ export default class Home extends Component {
           }
         );
     });
+    */
   };
+
+  async run(url) {
+    console.log("Running test against " + url);
+    //let t0 = performance.now();
+
+    // set headless to false if you want the browser to appear
+    let browser = await puppeteer.launch({ headless: true });
+    let page = await browser.newPage();
+
+    // get size of expected screenshot
+    // const expected = await readExpectedImage();
+
+    // get matching screenshot
+    await page.setViewport({ width: 1024, height: 768 });
+    await page.goto(url);
+    //await autoScroll(page);
+    let actualImage = await page.screenshot({
+      type: "png",
+      fullPage: true
+    });
+
+    await page.close();
+    await browser.close();
+
+    // let resizeComplete = await resizeImages();
+    // console.log(resizeComplete);
+
+    // let results = await compareScreenshots();
+
+    // calculate runtime
+    // let t1 = performance.now();
+    // let runtime = t1 - t0;
+    // let runtimeInSeconds = runtime / 1000;
+
+    // add runtime to results json that we got from compareScreenshots
+    // results["timeToComplete"] = runtimeInSeconds;
+
+    //return results;
+
+    return actualImage;
+  }
 
   displayProcessingModal = e => {
     return (
