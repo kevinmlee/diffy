@@ -28,6 +28,17 @@ export default class Input extends Component {
               onChange={this.props.onDrop}
             />
 
+            <div className="preview">
+              {this.props.state.expectedImageBase64 ? (
+                <img
+                  src={this.props.state.expectedImageBase64}
+                  alt="image preview"
+                />
+              ) : (
+                ""
+              )}
+            </div>
+
             <button
               className="btn c-white bg-orange b-orange"
               onClick={this.props.handleSubmit}

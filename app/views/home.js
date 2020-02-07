@@ -1,8 +1,24 @@
 import React, { Component } from "react";
 import axios from "axios";
 
+// components
 import Input from "../views/input";
-//import Results from "../views/results";
+import Results from "../views/results";
+
+const fs = require("fs");
+const PNG = require("pngjs").PNG;
+const puppeteer = require("puppeteer"); // headless chrome
+const pixelmatch = require("pixelmatch"); // image diffing
+const { performance } = require("perf_hooks");
+const sharp = require("sharp"); // image resizer
+
+// image paths
+const expectedImagePath = __dirname + "/client/expected/expected.png";
+const expectedResizedImagePath =
+  __dirname + "/client/expected/expected-resized.png";
+const actualImagePath = __dirname + "/client/actual/actual.png";
+const actualResizedImagePath = __dirname + "/client/actual/actual.png";
+const diffImagePath = __dirname + "/client/result/diff.png";
 
 export default class Home extends Component {
   constructor(props) {
@@ -27,7 +43,7 @@ export default class Home extends Component {
       resultsReceived: false
     };
 
-    this.uploadExpectedResult = this.uploadExpectedResult.bind(this);
+    this.saveExpectedResult = this.saveExpectedResult.bind(this);
     this.processImages = this.processImages.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -45,8 +61,8 @@ export default class Home extends Component {
   // on submit, attempt to authenticate with Tesla
   async handleSubmit(event) {
     this.setState({ displayProcessingModal: true });
-    await this.uploadExpectedResult();
-    await this.processImages();
+    await this.saveExpectedResult();
+    //await this.processImages();
   }
 
   reset = () => {
@@ -58,38 +74,38 @@ export default class Home extends Component {
     this.setState({ diffImageBase64: null });
   };
 
-  onDrop = e => {
-    console.log(e.target.files[0]);
-    this.setState({ expectedImage: e.target.files[0] });
+  onDrop = event => {
+    console.log(event.target.files[0]);
+    this.setState({ expectedImage: event.target.files[0] });
 
-    let myReader = new FileReader();
-    myReader.onloadend = e => {
-      this.setState({ expectedImageBase64: myReader.result });
+    let reader = new FileReader();
+    reader.onloadend = e => {
+      this.setState({ expectedImageBase64: reader.result });
     };
-    myReader.readAsDataURL(this.state.expectedImage);
+    if (event.target.files[0]) {
+      reader.readAsDataURL(event.target.files[0]);
+    }
   };
 
-  uploadExpectedResult = () => {
+  saveExpectedResult = () => {
     return new Promise((resolve, reject) => {
       let myReader = new FileReader();
       myReader.onloadend = e => {
-        //this.setState({ expectedImageBase64: myReader.result });
+        let imageBase64String = myReader.result;
+        let data = imageBase64String.replace(/^data:image\/\w+;base64,/, "");
+        let buf = new Buffer(data, "base64");
 
-        axios
-          .post("/api/uploadExpectedResult", {
-            imageBase64String: myReader.result
-          })
-          .then(
-            response => {
-              //console.log("response: ", response);
-              resolve("Upload complete");
-            },
-            error => {
-              console.log(error);
-            }
-          );
+        fs.writeFile(expectedImagePath, buf, function(err) {
+          if (err) throw err;
+          else {
+            console.log("Image saved");
+            resolve();
+          }
+        });
       };
-      myReader.readAsDataURL(this.state.expectedImage);
+      if (this.state.expectedImage) {
+        myReader.readAsDataURL(this.state.expectedImage);
+      }
     });
   };
 
@@ -142,12 +158,18 @@ export default class Home extends Component {
     const processingModal = this.displayProcessingModal();
     return (
       <div>
-        <Input
-          state={this.state}
-          handleChange={this.handleChange}
-          handleSubmit={this.handleSubmit}
-          onDrop={this.onDrop}
-        />
+        {processingModal}
+
+        {this.state.resultsReceived ? (
+          <Results state={this.state} reset={this.reset} />
+        ) : (
+          <Input
+            state={this.state}
+            handleChange={this.handleChange}
+            handleSubmit={this.handleSubmit}
+            onDrop={this.onDrop}
+          />
+        )}
       </div>
     );
   }
@@ -155,7 +177,7 @@ export default class Home extends Component {
 
 /*
 import React, { Component } from "react";
-import Api from "../helpers/api";
+import api from "../helpers/api";
 
 class Home extends Component {
   constructor(props) {
@@ -176,7 +198,7 @@ class Home extends Component {
   handleSearch(e) {
     e.preventDefault();
     this.setState({ name: e.target.value });
-    Api.getThing().then(data => {
+    api.getThing().then(data => {
       console.log(data);
     });
   }

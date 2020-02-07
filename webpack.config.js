@@ -54,5 +54,11 @@ module.exports = {
       { from: "./app/assets", to: "assets" }
     ])
   ],
-  devtool: "eval"
+  devtool: "eval",
+  externals: {
+    sharp: "sharp",
+    fs: "commonjs fs",
+    perf_hooks: "commonjs perf_hooks",
+    ws: "commonjs ws"
+  }
 };
