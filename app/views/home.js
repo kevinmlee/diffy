@@ -58,7 +58,6 @@ export default class Home extends Component {
     });
   };
 
-  // on submit, attempt to authenticate with Tesla
   async handleSubmit(event) {
     this.setState({ displayProcessingModal: true });
     await this.saveExpectedResult();
