@@ -62,7 +62,7 @@ export default class Home extends Component {
   async handleSubmit(event) {
     this.setState({ displayProcessingModal: true });
     await this.saveExpectedResult();
-    await this.processImages();
+    await this.processImages(this.state.url);
   }
 
   reset = () => {
@@ -106,16 +106,12 @@ export default class Home extends Component {
     });
   };
 
-  processImages = () => {
+  processImages = url => {
     return new Promise((resolve, reject) => {
+      console.log("Getting actual result from", url);
       console.log("Attempting to process images");
-      run(urlToCheck)
-        .then(function(result) {
-          resolve();
-        })
-        .catch(function(err) {
-          console.err(err);
-        });
+
+      resolve();
     });
 
     /*return new Promise((resolve, reject) => {

@@ -18,6 +18,7 @@ export default class Input extends Component {
               placeholder="URL"
               value={this.props.state.url}
               onChange={this.props.handleChange}
+              required
             />
 
             <input
@@ -26,6 +27,7 @@ export default class Input extends Component {
               name="image"
               accept=".png"
               onChange={this.props.onDrop}
+              required
             />
 
             <div className="preview">
@@ -39,12 +41,12 @@ export default class Input extends Component {
               )}
             </div>
 
-            <button
+            <input
+              type="submit"
               className="btn c-white bg-orange b-orange"
+              value="Process"
               onClick={this.props.handleSubmit}
-            >
-              Test
-            </button>
+            />
           </div>
         </div>
       </div>
