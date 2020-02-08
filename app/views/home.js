@@ -105,41 +105,22 @@ export default class Home extends Component {
     });
   };
 
-  processImages = url => {
+  processImages = async url => {
     return new Promise((resolve, reject) => {
       console.log("Getting actual result from", url);
       console.log("Attempting to process images");
 
-      resolve();
-    });
-
-    /*return new Promise((resolve, reject) => {
-      axios
-        .post("/api/processImages", {
-          urlToCheck: this.state.url
+      this.run(url)
+        .then(function(result) {
+          resolve(result);
         })
-        .then(
-          response => {
-            let data = response.data.analysisResults;
-            //console.log("results: ", data);
-
-            this.setState({ error: data.error });
-            this.setState({ accuracy: data.accuracy });
-            this.setState({ actualImageBase64: data.actualImageBase64 });
-            this.setState({ diffImageBase64: data.diffImageBase64 });
-            this.setState({ timeToComplete: data.timeToComplete });
-            this.setState({ resultsReceived: true });
-            this.setState({ displayProcessingModal: false });
-          },
-          error => {
-            console.log(error);
-          }
-        );
+        .catch(function(err) {
+          throw err;
+        });
     });
-    */
   };
 
-  async run(url) {
+  run = async url => {
     console.log("Running test against " + url);
     //let t0 = performance.now();
 
@@ -178,7 +159,7 @@ export default class Home extends Component {
     //return results;
 
     return actualImage;
-  }
+  };
 
   displayProcessingModal = e => {
     return (
