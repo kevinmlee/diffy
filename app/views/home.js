@@ -45,7 +45,7 @@ export default class Home extends Component {
 
   async handleSubmit(event) {
     this.setState({ displayProcessingModal: true });
-    await this.saveExpectedResult();
+    //await this.saveExpectedResult();
     await this.processImages(this.state.url);
   }
 
@@ -99,7 +99,8 @@ export default class Home extends Component {
     return new Promise((resolve, reject) => {
       axios
         .post("http://localhost:5000/api/processImages", {
-          urlToCheck: url
+          urlToCheck: url,
+          expectedImageBase64String: this.state.expectedImageBase64
         })
         .then(
           response => {

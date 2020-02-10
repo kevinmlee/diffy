@@ -13,15 +13,15 @@ export default class Results extends Component {
 
           <div className="stats">
             <div className="stat-item">
-              <span className="title">Error: </span>
-              <span className="data">
-                {Math.round((this.props.state.error * 100) / 100)}%
-              </span>
-            </div>
-            <div className="stat-item">
               <span className="title">Accuracy: </span>
               <span className="data">
                 {Math.round((this.props.state.accuracy * 100) / 100)}%
+              </span>
+            </div>
+            <div className="stat-item">
+              <span className="title">Error: </span>
+              <span className="data">
+                {Math.round((this.props.state.error * 100) / 100)}%
               </span>
             </div>
             {this.props.state.timeToComplete > 0 ? (

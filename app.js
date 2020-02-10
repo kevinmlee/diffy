@@ -59,15 +59,15 @@ app.all("/api/saveExpectedResult", (req, res) => {
 });
 
 app.all("/api/processImages", (req, res) => {
-  const { urlToCheck } = req.body;
+  const { urlToCheck, expectedImageBase64String } = req.body;
 
-  run(urlToCheck)
+  run(urlToCheck, expectedImageBase64String)
     .then(function(result) {
       // send results json to frontend
       res.status(200).send({ analysisResults: result });
     })
     .catch(function(err) {
-      console.err(err);
+      throw err;
     });
 });
 
@@ -83,12 +83,19 @@ app.listen(port);
 console.log(`Diffy listening on ${port}`);
 
 // Helpers
-async function run(url) {
+async function run(url, expectedImageBase64String) {
   console.log("Running test against " + url);
   //let t0 = performance.now();
 
   // get size of expected screenshot
-  const expected = await readExpectedImage();
+  // const expected = await readExpectedImage();
+  const expected = await readImage(expectedImageBase64String);
+  console.log("expected", { width: expected.width, height: expected.height });
+
+  //console.log("expected: ", expected);
+  //console.log("expectedImageBase64String: ", expectedImageBase64String);
+
+  // let dimensions = await getImageDimensions(expectedImageBase64String);
 
   // set headless to false if you want the browser to appear
   let browser = await puppeteer.launch({ headless: true });
@@ -98,17 +105,82 @@ async function run(url) {
   await page.setViewport({ width: expected.width, height: expected.height });
   await page.goto(url);
   await autoScroll(page);
+  let actualBase64String = await page.screenshot({
+    type: "png",
+    fullPage: true,
+    encoding: "base64"
+  });
+  //console.log("actualBase64String", actualBase64String);
+  const actual = await readImage(actualBase64String);
+  console.log("actual", { width: actual.width, height: actual.height });
+  /*
   await page.screenshot({
     path: actualImagePath,
     type: "png",
     fullPage: true
   });
-
+  */
   await page.close();
   await browser.close();
 
-  let resizeComplete = await resizeImages();
-  console.log(resizeComplete);
+  //let resizeComplete = await resizeImages(expected, actual);
+  //console.log(resizeComplete);
+
+  console.log("Resizing screenshots");
+  // get largest width and height
+  let widestWidth = Math.max(expected.width, actual.width);
+  let tallestHeight = Math.max(expected.height, actual.height);
+
+  let expectedData = expectedImageBase64String.replace(
+    /^data:image\/\w+;base64,/,
+    ""
+  );
+  const expectedBuffer = new Buffer(expectedData, "base64");
+
+  let actualData = actualBase64String.replace(/^data:image\/\w+;base64,/, "");
+  const actualBuffer = new Buffer(actualData, "base64");
+
+  console.log("max dimensions: ", {
+    width: widestWidth,
+    height: tallestHeight
+  });
+
+  // resized expected
+  const expectedResizedBuffer = await sharp(expectedBuffer)
+    .resize(widestWidth, tallestHeight)
+    .png()
+    .toBuffer();
+
+  // resize actual
+  const actualResizedBuffer = await sharp(actualBuffer)
+    .resize(widestWidth, tallestHeight)
+    .png()
+    .toBuffer();
+
+  const expectedResized = new PNG({ filterType: 4 }).parse(
+    expectedResizedBuffer,
+    function(error, data) {
+      //console.log(error, data);
+    }
+  );
+  const actualResized = new PNG({ filterType: 4 }).parse(
+    actualResizedBuffer,
+    function(error, data) {
+      //console.log(error, data);
+    }
+  );
+
+  console.log("expectedResized", expectedResized);
+  console.log("actualResized", actualResized);
+
+  console.log("expected resized", {
+    width: expectedResized.width,
+    height: expectedResized.height
+  });
+  console.log("actual resized", {
+    width: actualResized.width,
+    height: actualResized.height
+  });
 
   let results = await compareScreenshots();
 
@@ -144,6 +216,16 @@ async function autoScroll(page) {
   });
 }
 
+function getImageDimensions(file) {
+  return new Promise(function(resolved, rejected) {
+    var image = new Image();
+    image.onload = function() {
+      resolved({ width: image.width, height: image.height });
+    };
+    image.src = file;
+  });
+}
+
 function readExpectedImage() {
   return new Promise((resolve, reject) => {
     const img1 = fs
@@ -157,7 +239,82 @@ function readExpectedImage() {
   });
 }
 
-function resizeImages() {
+function readImage(base64String) {
+  return new Promise((resolve, reject) => {
+    let data = base64String.replace(/^data:image\/\w+;base64,/, "");
+    const imgBuffer = new Buffer(data, "base64");
+
+    const img1 = new PNG({ filterType: 4 }).parse(imgBuffer, function(
+      error,
+      data
+    ) {
+      //console.log(error, data);
+    });
+
+    resolve(img1);
+  });
+}
+
+function resizeImages(expected, actual) {
+  return new Promise((resolve, reject) => {
+    //const img1 = PNG.sync.read(fs.readFileSync(expectedImagePath));
+    //const img2 = PNG.sync.read(fs.readFileSync(actualImagePath));
+
+    console.log("Resizing screenshots");
+    // get largest width and height
+    let widestWidth = Math.max(expected.width, actual.width);
+    let tallestHeight = Math.max(expected.height, actual.height);
+
+    console.log("max dimensions: ", {
+      width: widestWidth,
+      height: tallestHeight
+    });
+
+    // resized expected
+    sharp(expected)
+      .resize(widestWidth, tallestHeight)
+      .png()
+      .toBuffer();
+
+    // resize actual
+    sharp(actual)
+      .resize(widestWidth, tallestHeight)
+      .png()
+      .toBuffer();
+
+    /*
+    // resized expected
+    let expectedResized = sharp(expected)
+      .resize(widestWidth, tallestHeight)
+      .toBuffer()
+      .then(data => {})
+      .catch(err => {});
+
+    // resize actual
+    let actualResized = sharp(actual)
+      .resize(widestWidth, tallestHeight)
+      .toBuffer()
+      .then(data => {})
+      .catch(err => {});
+    */
+
+    console.log("expected resized", {
+      width: expectedResized.width,
+      height: expectedResized.height
+    });
+    console.log("actual resized", {
+      width: actualResized.width,
+      height: actualResized.height
+    });
+
+    resolve({
+      expectedResizedBuffer: expectedResized,
+      actualResizedBuffer: actualResized
+    });
+  });
+}
+
+function resizeImagesOld() {
   return new Promise((resolve, reject) => {
     const img1 = PNG.sync.read(fs.readFileSync(expectedImagePath));
     const img2 = PNG.sync.read(fs.readFileSync(actualImagePath));
