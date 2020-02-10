@@ -8,8 +8,8 @@ module.exports = {
   },
   output: {
     filename: "app.bundle.js",
-    path: path.resolve(__dirname, "./public"),
-    publicPath: "/"
+    path: path.resolve(__dirname, "./public")
+    // publicPath: "/"
   },
   module: {
     rules: [
@@ -58,6 +58,8 @@ module.exports = {
   externals: {
     sharp: "commonjs sharp",
     fs: "commonjs fs",
-    ws: "commonjs ws"
+    ws: "commonjs ws",
+    cors: "commonjs cors",
+    perf_hooks: "commonjs perf_hooks"
   }
 };

@@ -24,13 +24,17 @@ export default class Results extends Component {
                 {Math.round((this.props.state.accuracy * 100) / 100)}%
               </span>
             </div>
-            <div className="stat-item">
-              <span className="title">Runtime: </span>
-              <span className="data">
-                {Math.round((this.props.state.timeToComplete * 100) / 100)}{" "}
-                seconds
-              </span>
-            </div>
+            {this.props.state.timeToComplete > 0 ? (
+              <div className="stat-item">
+                <span className="title">Runtime: </span>
+                <span className="data">
+                  {Math.round((this.props.state.timeToComplete * 100) / 100)}{" "}
+                  seconds
+                </span>
+              </div>
+            ) : (
+              ""
+            )}
           </div>
 
           <table>
