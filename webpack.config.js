@@ -56,7 +56,6 @@ module.exports = {
   ],
   devtool: "eval",
   externals: {
-    express: "commonjs express",
     sharp: "commonjs sharp",
     fs: "commonjs fs",
     ws: "commonjs ws",
