@@ -2,7 +2,6 @@ const express = require("express");
 const path = require("path");
 const logger = require("morgan");
 const bodyParser = require("body-parser");
-const fs = require("fs");
 const cors = require("cors");
 const PNG = require("pngjs").PNG;
 const puppeteer = require("puppeteer"); // headless chrome
@@ -11,13 +10,6 @@ const pixelmatch = require("pixelmatch"); // image diffing
 const sharp = require("sharp"); // image resizer
 
 const app = express();
-
-// Image paths
-const expectedImagePath = __dirname + "/expected.png";
-const expectedResizedImagePath = __dirname + "/expected-resized.png";
-const actualImagePath = __dirname + "/actual.png";
-const actualResizedImagePath = __dirname + "/actual.png";
-const diffImagePath = __dirname + "/diff.png";
 
 // bodyParser, parses the request body to be a readable json format
 app.use(bodyParser.json({ limit: "10mb" }));
@@ -34,29 +26,6 @@ app.options("*", cors());
 // Serve static files from the React app
 // app.use(express.static(path.join(__dirname, "client/build")));
 app.use(express.static(path.join(__dirname, "public")));
-
-app.all("/api/saveExpectedResult", (req, res) => {
-  const { imageBase64String } = req.body;
-
-  console.log("Received request");
-
-  // Grab the extension to resolve any image error
-  // var ext = imageBase64String.split(";")[0].match(/jpeg|png|gif/)[0];
-
-  // TO-DO
-  // convert jpg to png
-
-  // strip off the data: url prefix to get just the base64-encoded bytes
-  var data = imageBase64String.replace(/^data:image\/\w+;base64,/, "");
-  var buf = new Buffer(data, "base64");
-  fs.writeFile(expectedImagePath, buf, function(err) {
-    if (err) throw err;
-    else {
-      console.log("Image saved");
-      res.status(200).send({ success: "Received expected result." });
-    }
-  });
-});
 
 app.all("/api/processImages", (req, res) => {
   const { urlToCheck, expectedImageBase64String } = req.body;
