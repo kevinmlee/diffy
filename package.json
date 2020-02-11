@@ -1,6 +1,6 @@
 {
-  "name": "Diffy",
-  "productName": "Diffy",
+  "name": "diffy",
+  "productName": "diffy",
   "version": "1.0.0",
   "description": "A QA tool for mockups and web pages",
   "main": "electron.js",
