@@ -83,6 +83,7 @@ export default class Home extends Component {
 
             this.setState({ error: data.error });
             this.setState({ accuracy: data.accuracy });
+            //this.setState({ expectedImageBase64: data.expectedImageBase64 });
             this.setState({ actualImageBase64: data.actualImageBase64 });
             this.setState({ diffImageBase64: data.diffImageBase64 });
             //this.setState({ timeToComplete: data.timeToComplete });
@@ -104,11 +105,11 @@ export default class Home extends Component {
       >
         <div className="modal-content">
           <div className="title">Processing data</div>
-          <div className="description">This may up to a minute.</div>
+          <div className="description">This may take up to a minute.</div>
 
-          <div class="loader loader-1">
-            <div class="loader-outter"></div>
-            <div class="loader-inner"></div>
+          <div className="loader loader-1">
+            <div className="loader-outter"></div>
+            <div className="loader-inner"></div>
           </div>
         </div>
       </div>
@@ -117,6 +118,7 @@ export default class Home extends Component {
 
   render() {
     const processingModal = this.displayProcessingModal();
+
     return (
       <div>
         {processingModal}

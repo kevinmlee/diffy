@@ -1,0 +1,18 @@
+/* Results Component */
+#results {
+  padding: 100px 0;
+}
+#results .container {
+  max-width: 1024px;
+  margin: 0 auto;
+}
+#results .stats {
+  margin-left: -15px;
+}
+#results .stat-item {
+  display: inline-block;
+  padding: 15px 35px;
+}
+#results .stat-item .title {
+  font-weight: bold;
+}

@@ -3,6 +3,7 @@ import StylesIgnored from "../styles/main.css";
 import Navbar from "./navbar";
 import Footer from "./footer";
 
+/*
 const Main = props => (
   <div>
     <Navbar />
@@ -10,6 +11,9 @@ const Main = props => (
     <Footer />
   </div>
 );
+*/
+
+const Main = props => <div>{props.children}</div>;
 
 Main.propTypes = {
   children: PropTypes.object.isRequired

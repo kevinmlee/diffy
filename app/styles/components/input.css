@@ -1,0 +1,18 @@
+/* Input Component */
+#input {
+  padding: 100px 0;
+}
+#input h2 {
+  font-family: "Pacifico", cursive;
+  font-size: 50px;
+}
+#input .container {
+  max-width: 500px;
+  margin: 0 auto;
+}
+#input .form-container {
+  margin-top: 50px;
+}
+#input .form-container > * {
+  margin-top: 25px;
+}

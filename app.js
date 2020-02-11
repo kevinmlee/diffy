@@ -218,17 +218,16 @@ function compareScreenshots(expectedResizedBuffer, actualResizedBuffer) {
     const percentageAccuracy = 100 - percentageError;
 
     // convert data into base64string
+    // const expectedBase64 = expectedResizedBuffer.toString("base64");
     const actualBase64 = actualResizedBuffer.toString("base64");
-    //console.log("actualBase64", actualBase64);
-
     const diffBase64 = PNG.sync.write(diff).toString("base64");
-    //console.log("diffBase64", diffBase64);
 
     resolve({
       expectedPixels: expectedTotalPixels,
       differenceOfPixels: numDiffPixels,
       error: percentageError,
       accuracy: percentageAccuracy,
+      //expectedImageBase64: expectedBase64,
       actualImageBase64: actualBase64,
       diffImageBase64: diffBase64
     });

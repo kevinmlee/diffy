@@ -2,51 +2,71 @@ import React, { Component } from "react";
 //import Dropzone from "react-dropzone";
 
 export default class Input extends Component {
-  render() {
+  constructor(props) {
+    super(props);
+
+    this.displayBubbles = this.displayBubbles.bind(this);
+  }
+
+  displayBubbles = e => {
     return (
-      <div id="input" className="ta-center">
+      <ul className="bg-bubbles">
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+      </ul>
+    );
+  };
+
+  render() {
+    const bubbles = this.displayBubbles();
+
+    return (
+      <div id="input" className="bubbles-bg ta-center">
+        {bubbles}
+
         <div className="container">
           <div className="section-header">
-            <h2 className="section-title">Input</h2>
+            <h2 className="section-title c-white">diffy</h2>
             <div className="section-copy"></div>
           </div>
 
           <div className="form-container">
-            <input
-              type="text"
-              name="url"
-              placeholder="URL"
-              value={this.props.state.url}
-              onChange={this.props.handleChange}
-              required
-            />
-
-            <input
-              label="Image"
-              type="file"
-              name="image"
-              accept=".png"
-              onChange={this.props.onDrop}
-              required
-            />
-
-            <div className="preview">
-              {this.props.state.expectedImageBase64 ? (
-                <img
-                  src={this.props.state.expectedImageBase64}
-                  alt="image preview"
-                />
-              ) : (
-                ""
-              )}
+            <div className="row">
+              <input
+                type="text"
+                name="url"
+                placeholder="URL"
+                value={this.props.state.url}
+                onChange={this.props.handleChange}
+                required
+              />
             </div>
-
-            <input
-              type="submit"
-              className="btn c-white bg-orange b-orange"
-              value="Process"
-              onClick={this.props.handleSubmit}
-            />
+            <div className="row">
+              <input
+                label="Image"
+                type="file"
+                name="image"
+                accept=".png"
+                onChange={this.props.onDrop}
+                required
+              />
+            </div>
+            <div className="row">
+              <input
+                type="submit"
+                className="btn c-black bg-white-opaque h-bg-white"
+                value="Process"
+                onClick={this.props.handleSubmit}
+              />
+            </div>
           </div>
         </div>
       </div>
