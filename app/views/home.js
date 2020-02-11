@@ -28,7 +28,6 @@ export default class Home extends Component {
       resultsReceived: false
     };
 
-    this.saveExpectedResult = this.saveExpectedResult.bind(this);
     this.processImages = this.processImages.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -45,7 +44,6 @@ export default class Home extends Component {
 
   async handleSubmit(event) {
     this.setState({ displayProcessingModal: true });
-    //await this.saveExpectedResult();
     await this.processImages(this.state.url);
   }
 
@@ -69,30 +67,6 @@ export default class Home extends Component {
     if (event.target.files[0]) {
       reader.readAsDataURL(event.target.files[0]);
     }
-  };
-
-  saveExpectedResult = () => {
-    return new Promise((resolve, reject) => {
-      let myReader = new FileReader();
-      myReader.onloadend = e => {
-        axios
-          .post("http://localhost:5000/api/saveExpectedResult", {
-            imageBase64String: myReader.result
-          })
-          .then(
-            response => {
-              //console.log("repsonse: ", response);
-              resolve("Upload complete");
-            },
-            error => {
-              console.log(error);
-            }
-          );
-      };
-      if (this.state.expectedImage) {
-        myReader.readAsDataURL(this.state.expectedImage);
-      }
-    });
   };
 
   processImages = url => {
@@ -161,59 +135,3 @@ export default class Home extends Component {
     );
   }
 }
-
-/*
-import React, { Component } from "react";
-import api from "../helpers/api";
-
-class Home extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { name: "Test" };
-    this.handleInput = this.handleInput.bind(this);
-    this.handleSearch = this.handleSearch.bind(this);
-  }
-
-  componentDidMount() {
-    // Do something when loaded
-  }
-
-  handleInput(e) {
-    this.setState({ name: e.target.value });
-  }
-
-  handleSearch(e) {
-    e.preventDefault();
-    this.setState({ name: e.target.value });
-    api.getThing().then(data => {
-      console.log(data);
-    });
-  }
-
-  render() {
-    const { name } = this.state;
-
-    return (
-      <div className="container text-center">
-        <h2>username: {name}</h2>
-
-        <form className="search" onSubmit={this.handleSearch}>
-          <input
-            onChange={this.handleInput}
-            type="search"
-            placeholder="Search"
-          />
-          <button type="submit" className="btn">
-            Test
-          </button>
-        </form>
-
-        <div className="bg-test" />
-        <img src="assets/apple-icon.png" width="100" alt="Black box" />
-      </div>
-    );
-  }
-}
-
-export default Home;
-*/
