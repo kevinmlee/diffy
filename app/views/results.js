@@ -3,15 +3,38 @@ import React, { Component } from "react";
 export default class Results extends Component {
   constructor(props) {
     super(props);
+
+    this.displayBubbles = this.displayBubbles.bind(this);
   }
 
-  render() {
+  displayBubbles = e => {
     return (
-      <div id="results">
-        <div className="container">
-          <h2>Results</h2>
+      <ul className="bg-bubbles">
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+      </ul>
+    );
+  };
 
-          <div className="stats">
+  render() {
+    const bubbles = this.displayBubbles();
+
+    return (
+      <div id="results" className="bubbles-bg">
+        {bubbles}
+
+        <div className="container">
+          <h2 className="ta-center c-white">Results</h2>
+
+          <div className="stats ta-center c-white">
             <div className="stat-item">
               <span className="title">Accuracy: </span>
               <span className="data">
@@ -37,7 +60,7 @@ export default class Results extends Component {
             )}
           </div>
 
-          <table>
+          <table className="c-white">
             <thead>
               <tr>
                 <th>Expected</th>
@@ -77,7 +100,7 @@ export default class Results extends Component {
 
           <div className="btn-container ta-center">
             <button
-              className="btn c-white bg-orange b-orange"
+              className="btn c-black bg-white-opaque h-bg-white"
               onClick={this.props.reset}
             >
               Test something else

@@ -16,3 +16,17 @@
 #results .stat-item .title {
   font-weight: bold;
 }
+#results table {
+  border-spacing: 20px;
+  border-collapse: separate;
+}
+#results table th {
+  font-size: 32px;
+}
+#results table td {
+  vertical-align: top;
+  background-color: rgba(255, 255, 255, 0.5);
+  border: 1px solid #ffffff;
+  padding: 12px;
+  border-radius: 4px;
+}
