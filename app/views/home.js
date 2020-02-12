@@ -57,7 +57,7 @@ export default class Home extends Component {
   };
 
   onDrop = event => {
-    console.log(event.target.files[0]);
+    //console.log(event.target.files[0]);
     this.setState({ expectedImage: event.target.files[0] });
 
     let reader = new FileReader();
