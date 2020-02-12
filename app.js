@@ -8,6 +8,7 @@ const puppeteer = require("puppeteer"); // headless chrome
 const pixelmatch = require("pixelmatch"); // image diffing
 //const { performance } = require("perf_hooks");
 const sharp = require("sharp"); // image resizer
+const urlExists = require("url-exists");
 
 const app = express();
 
@@ -27,17 +28,27 @@ app.options("*", cors());
 // app.use(express.static(path.join(__dirname, "client/build")));
 app.use(express.static(path.join(__dirname, "public")));
 
-app.all("/api/processImages", (req, res) => {
+app.all("/api/processImages", async (req, res) => {
   const { urlToCheck, expectedImageBase64String } = req.body;
 
-  run(urlToCheck, expectedImageBase64String)
-    .then(function(result) {
-      // send results json to frontend
-      res.status(200).send({ analysisResults: result });
-    })
-    .catch(function(err) {
-      throw err;
+  // check if URL exists
+  const activeURL = await checkURL(urlToCheck);
+
+  // if URL exists then run tests, otherwise send error back to frontend
+  if (activeURL) {
+    run(urlToCheck, expectedImageBase64String)
+      .then(function(result) {
+        // send results json to frontend
+        res.status(200).send({ analysisResults: result });
+      })
+      .catch(function(err) {
+        throw err;
+      });
+  } else {
+    res.send({
+      error: "Please check the URL and try again."
     });
+  }
 });
 
 // The "catchall" handler: for any request that doesn't
@@ -230,6 +241,16 @@ function compareScreenshots(expectedResizedBuffer, actualResizedBuffer) {
       //expectedImageBase64: expectedBase64,
       actualImageBase64: actualBase64,
       diffImageBase64: diffBase64
+    });
+  });
+}
+
+function checkURL(url) {
+  return new Promise((resolve, reject) => {
+    urlExists(url, function(err, exists) {
+      console.log(url + " exists? ", exists);
+
+      resolve(exists);
     });
   });
 }

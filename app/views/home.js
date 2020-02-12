@@ -11,6 +11,8 @@ export default class Home extends Component {
 
     this.state = {
       displayProcessingModal: false,
+      displayErrorModal: false,
+      errorMessage: "",
       url: "",
       expectedImage: null,
       expectedImageBase64: null,
@@ -78,17 +80,24 @@ export default class Home extends Component {
         })
         .then(
           response => {
-            let data = response.data.analysisResults;
-            //console.log("results: ", data);
+            if (!response.data.error) {
+              let data = response.data.analysisResults;
+              //console.log("results: ", data);
 
-            this.setState({ error: data.error });
-            this.setState({ accuracy: data.accuracy });
-            //this.setState({ expectedImageBase64: data.expectedImageBase64 });
-            this.setState({ actualImageBase64: data.actualImageBase64 });
-            this.setState({ diffImageBase64: data.diffImageBase64 });
-            //this.setState({ timeToComplete: data.timeToComplete });
-            this.setState({ resultsReceived: true });
-            this.setState({ displayProcessingModal: false });
+              this.setState({ error: data.error });
+              this.setState({ accuracy: data.accuracy });
+              //this.setState({ expectedImageBase64: data.expectedImageBase64 });
+              this.setState({ actualImageBase64: data.actualImageBase64 });
+              this.setState({ diffImageBase64: data.diffImageBase64 });
+              //this.setState({ timeToComplete: data.timeToComplete });
+              this.setState({ resultsReceived: true });
+              this.setState({ displayProcessingModal: false });
+            } else {
+              //console.log(response.data.error);
+              this.setState({ displayProcessingModal: false });
+              this.setState({ errorMessage: response.data.error });
+              this.setState({ displayErrorModal: true });
+            }
           },
           error => {
             console.log(error);
@@ -116,12 +125,42 @@ export default class Home extends Component {
     );
   };
 
+  displayErrorModal = e => {
+    return (
+      <div
+        id="error"
+        className={this.state.displayErrorModal ? "modal" : "modal hidden"}
+      >
+        <div className="modal-content">
+          <div className="icon">
+            <img src="./assets/icons8-error-64.png" alt="error icon" />
+          </div>
+          <div className="title">Error</div>
+          <div className="description">{this.state.errorMessage}</div>
+
+          <button
+            className="btn gradient c-white"
+            onClick={this.closeErrorModal}
+          >
+            <span>Understood</span>
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  closeErrorModal = e => {
+    this.setState({ displayErrorModal: false });
+  };
+
   render() {
     const processingModal = this.displayProcessingModal();
+    const errorModal = this.displayErrorModal();
 
     return (
       <div>
         {processingModal}
+        {errorModal}
 
         {this.state.resultsReceived ? (
           <Results state={this.state} reset={this.reset} />
