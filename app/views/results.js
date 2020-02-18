@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 
+let moment = require("moment");
+
 export default class Results extends Component {
   constructor(props) {
     super(props);
@@ -45,6 +47,15 @@ export default class Results extends Component {
               <span className="title">Error: </span>
               <span className="data">
                 {Math.round((this.props.state.error * 100) / 100)}%
+              </span>
+            </div>
+            <div className="stat-item">
+              <span className="title">Page load time: </span>
+              <span className="data">
+                {(this.props.state.performanceMetrics.timing.loadEventEnd -
+                  this.props.state.performanceMetrics.timing.navigationStart) /
+                  1000}{" "}
+                seconds
               </span>
             </div>
             {this.props.state.timeToComplete > 0 ? (

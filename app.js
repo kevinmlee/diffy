@@ -12,6 +12,10 @@ const urlExists = require("url-exists");
 
 const app = express();
 
+/*
+ * Settings
+ */
+
 // bodyParser, parses the request body to be a readable json format
 app.use(bodyParser.json({ limit: "10mb" }));
 app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
@@ -20,9 +24,9 @@ app.use(logger("dev"));
 app.use(cors());
 app.options("*", cors());
 
-/////////////////////////////////////////////
-// API
-/////////////////////////////////////////////
+/*
+ * API
+ */
 
 // Serve static files from the React app
 // app.use(express.static(path.join(__dirname, "client/build")));
@@ -34,9 +38,24 @@ app.all("/api/processImages", async (req, res) => {
   // check if URL exists
   const activeURL = await checkURL(urlToCheck);
 
+  // const isJPG = expectedImageBase64String.includes("data:image/jpeg");
+  // convert image to png
+  console.log("Converting expected image to PNG");
+  const base64Data = expectedImageBase64String.replace(
+    /^data:image\/\w+;base64,/,
+    ""
+  );
+  const base64Buffer = new Buffer(base64Data, "base64");
+  const base64PNGBuffer = await sharp(base64Buffer)
+    .png()
+    .toBuffer();
+
+  console.log("Conversion complete");
+  const expectedBase64PNG = base64PNGBuffer.toString("base64");
+
   // if URL exists then run tests, otherwise send error back to frontend
   if (activeURL) {
-    run(urlToCheck, expectedImageBase64String)
+    run(urlToCheck, expectedBase64PNG)
       .then(function(result) {
         // send results json to frontend
         res.status(200).send({ analysisResults: result });
@@ -57,12 +76,18 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname + "/client/public/index.html"));
 });
 
+/*
+ *  Start server and listen
+ */
 const port = process.env.PORT || 5000;
 app.listen(port);
 
 console.log(`Diffy listening on ${port}`);
 
-// Helpers
+/*
+ * Helper functions
+ */
+
 async function run(url, expectedImageBase64String) {
   console.log("Running test against " + url);
   //let t0 = performance.now();
@@ -84,6 +109,17 @@ async function run(url, expectedImageBase64String) {
     fullPage: true,
     encoding: "base64"
   });
+
+  // Captures the current state of the accessibility tree
+  // const accessibility = await page.accessibility.snapshot();
+  // console.info(accessibility);
+
+  // Executes Navigation API within the page context
+  const metrics = await page.evaluate(() => JSON.stringify(window.performance));
+
+  // Parses the result to JSON
+  console.info(JSON.parse(metrics));
+
   //console.log("actualBase64String", actualBase64String);
   const actual = await readImage(actualBase64String);
   console.log("actual", { width: actual.width, height: actual.height });
@@ -162,6 +198,9 @@ async function run(url, expectedImageBase64String) {
   // add runtime to results json that we got from compareScreenshots
   results["timeToComplete"] = runtimeInSeconds;
   */
+
+  // add metrics to results json
+  results["performance"] = JSON.parse(metrics);
 
   return results;
 }

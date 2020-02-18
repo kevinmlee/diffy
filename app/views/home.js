@@ -27,6 +27,7 @@ export default class Home extends Component {
       error: 0,
       accuracy: 0,
       timeToComplete: 0,
+      metrics: null,
       resultsReceived: false
     };
 
@@ -82,7 +83,7 @@ export default class Home extends Component {
           response => {
             if (!response.data.error) {
               let data = response.data.analysisResults;
-              //console.log("results: ", data);
+              console.log("results: ", data);
 
               this.setState({ error: data.error });
               this.setState({ accuracy: data.accuracy });
@@ -90,6 +91,7 @@ export default class Home extends Component {
               this.setState({ actualImageBase64: data.actualImageBase64 });
               this.setState({ diffImageBase64: data.diffImageBase64 });
               //this.setState({ timeToComplete: data.timeToComplete });
+              this.setState({ performanceMetrics: data.performance });
               this.setState({ resultsReceived: true });
               this.setState({ displayProcessingModal: false });
             } else {
