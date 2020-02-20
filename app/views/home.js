@@ -28,6 +28,7 @@ export default class Home extends Component {
       accuracy: 0,
       timeToComplete: 0,
       metrics: null,
+      processedLinks: null,
       resultsReceived: false
     };
 
@@ -92,8 +93,11 @@ export default class Home extends Component {
               this.setState({ diffImageBase64: data.diffImageBase64 });
               //this.setState({ timeToComplete: data.timeToComplete });
               this.setState({ performanceMetrics: data.performance });
+              this.setState({ processedLinks: data.processedLinks });
               this.setState({ resultsReceived: true });
               this.setState({ displayProcessingModal: false });
+
+              console.log(this.state.processedLinks);
             } else {
               //console.log(response.data.error);
               this.setState({ displayProcessingModal: false });

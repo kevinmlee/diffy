@@ -132,6 +132,33 @@ async function run(url, expectedImageBase64String) {
   console.log(anchorsArray);
   */
 
+  // Get all links on current page and store them in an array
+  let hrefs = await page.evaluate(() =>
+    Array.from(document.querySelectorAll("a[href]"), a =>
+      a.getAttribute("href")
+    )
+  );
+  // remove first element
+  hrefs.shift();
+
+  // Check for broken links and store them in an array
+  let processedLinks = await testLinks(hrefs);
+
+  /*
+  let brokenLinks = new Array();
+  for (let i = 0, max = hrefs.length; i < max; i++) {
+    //let testResult = await testURL(hrefs[i]);
+    //console.log(hrefs[i] + testResult);
+
+    urlExists(hrefs[i], function(err, exists) {
+      console.log(hrefs[i] + " " + exists);
+
+      if (!exists) brokenLinks.push(hrefs[i]);
+    });
+  }
+  */
+  console.log("processed links", processedLinks);
+
   //console.log("actualBase64String", actualBase64String);
   const actual = await readImage(actualBase64String);
   console.log("actual", { width: actual.width, height: actual.height });
@@ -213,6 +240,10 @@ async function run(url, expectedImageBase64String) {
 
   // add metrics to results json
   results["performance"] = JSON.parse(metrics);
+  //results["processedLinks"] = JSON.parse(processedLinks);
+  results["processedLinks"] = processedLinks;
+
+  //console.log(results);
 
   return results;
 }
@@ -305,3 +336,38 @@ function checkURL(url) {
     });
   });
 }
+
+testLinks = async links => {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+
+  let processedLinks = {};
+  let failedLinks = new Array();
+  let passedLinks = new Array();
+  let emptyLinks = 0;
+  let result;
+
+  //console.log(links);
+
+  for (let i = 0, max = links.length; i < max; i++) {
+    if (links[i] === "#") emptyLinks++;
+    else {
+      //console.log("Testing " + links[i]);
+      result = await page.goto(links[i]);
+
+      //console.log(result.status());
+      if (result && result.status() === 200)
+        passedLinks.push({ status: 200, url: links[i] });
+      else failedLinks.push({ status: 404, url: links[i] });
+    }
+  }
+
+  await page.close();
+  await browser.close();
+
+  processedLinks["failed"] = failedLinks;
+  processedLinks["empty"] = emptyLinks;
+  processedLinks["passed"] = passedLinks;
+
+  return processedLinks;
+};

@@ -71,6 +71,8 @@ export default class Results extends Component {
             )}
           </div>
 
+          <div className="processed-links"></div>
+
           <table className="c-white">
             <thead>
               <tr>
