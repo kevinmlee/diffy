@@ -120,6 +120,18 @@ async function run(url, expectedImageBase64String) {
   // Parses the result to JSON
   console.info(JSON.parse(metrics));
 
+  // Get all links on current page and store them in an array
+  /*
+  let anchors = document.getElementsByTagName("a");
+  let anchorsArray = new Array();
+  for (let i = 0, max = anchors.length; i < max; i++) {
+    //console.log(anchors[i].href);
+    anchorsArray.push(anchors[i].href);
+  }
+
+  console.log(anchorsArray);
+  */
+
   //console.log("actualBase64String", actualBase64String);
   const actual = await readImage(actualBase64String);
   console.log("actual", { width: actual.width, height: actual.height });
