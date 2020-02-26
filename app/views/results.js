@@ -71,7 +71,35 @@ export default class Results extends Component {
             )}
           </div>
 
-          <div className="processed-links"></div>
+          <div className="processed-links">
+            <div class="empty">
+              Empty Links: {this.props.state.processedLinks.empty}
+            </div>
+            <div class="failed">
+              Failed Links:{" "}
+              {this.props.state.processedLinks.failed.length > 0
+                ? this.props.state.processedLinks.failed.map((item, i) => {
+                    return (
+                      <div class="failed-item" key={i} answer={item.url}>
+                        {item.status} : {item.url}
+                      </div>
+                    );
+                  })
+                : "0"}
+            </div>
+            <div class="passed">
+              Passed Links:{" "}
+              {this.props.state.processedLinks.passed.length > 0
+                ? this.props.state.processedLinks.passed.map((item, i) => {
+                    return (
+                      <div class="passed-item" key={i} answer={item.url}>
+                        {item.status} : {item.url}
+                      </div>
+                    );
+                  })
+                : "0"}
+            </div>
+          </div>
 
           <table className="c-white">
             <thead>

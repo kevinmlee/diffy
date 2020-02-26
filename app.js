@@ -37,6 +37,7 @@ app.all("/api/processImages", async (req, res) => {
   // check if URL exists
   // const activeURL = await checkURL(urlToCheck);
   const activeURL = await testURL(urlToCheck);
+  const baseURL = urlToCheck.match(/^https?:\/\/[^#?\/]+/)[0];
 
   // const isJPG = expectedImageBase64String.includes("data:image/jpeg");
   // convert image to png
@@ -55,7 +56,7 @@ app.all("/api/processImages", async (req, res) => {
 
   // if URL exists then run tests, otherwise send error back to frontend
   if (activeURL) {
-    run(urlToCheck, expectedBase64PNG)
+    run(urlToCheck, baseURL, expectedBase64PNG)
       .then(function(result) {
         // send results json to frontend
         res.status(200).send({ analysisResults: result });
@@ -88,7 +89,7 @@ console.log(`Diffy listening on ${port}`);
  * Helper functions
  */
 
-async function run(url, expectedImageBase64String) {
+async function run(url, baseURL, expectedImageBase64String) {
   console.log("Running test against " + url);
   //let t0 = performance.now();
 
@@ -120,15 +121,14 @@ async function run(url, expectedImageBase64String) {
   // Parses the result to JSON
   console.info(JSON.parse(metrics));
 
-  // Get all links on current page and store them in an array
   /*
+  // Get all links on current page and store them in an array
   let anchors = document.getElementsByTagName("a");
   let anchorsArray = new Array();
   for (let i = 0, max = anchors.length; i < max; i++) {
     //console.log(anchors[i].href);
     anchorsArray.push(anchors[i].href);
   }
-
   console.log(anchorsArray);
   */
 
@@ -140,9 +140,17 @@ async function run(url, expectedImageBase64String) {
   );
   // remove first element
   hrefs.shift();
+  //console.log("hrefs", hrefs);
+
+  // add base url to relative links
+  hrefs.forEach((element, index) => {
+    if (element[0] === "/") hrefs[index] = baseURL + element;
+  });
+
+  //console.log("edited hrefs", hrefs);
 
   // Check for broken links and store them in an array
-  // let processedLinks = await testLinks(hrefs, baseDomain);
+  let processedLinks = await testLinks(hrefs);
 
   /*
   let brokenLinks = new Array();
@@ -157,7 +165,7 @@ async function run(url, expectedImageBase64String) {
     });
   }
   */
-  //console.log("processed links", processedLinks);
+  console.log("processed links", processedLinks);
 
   //console.log("actualBase64String", actualBase64String);
   const actual = await readImage(actualBase64String);
@@ -241,7 +249,7 @@ async function run(url, expectedImageBase64String) {
   // add metrics to results json
   results["performance"] = JSON.parse(metrics);
   //results["processedLinks"] = JSON.parse(processedLinks);
-  //results["processedLinks"] = processedLinks;
+  results["processedLinks"] = processedLinks;
 
   //console.log(results);
 
@@ -340,12 +348,17 @@ testLinks = async links => {
   //console.log(links);
 
   for (let i = 0, max = links.length; i < max; i++) {
-    if (links[i] === "#" || links[i] === "/") emptyLinks++;
+    if (
+      links[i] === "#" ||
+      links[i] === "javascript:void(0)" ||
+      links[i] === "javascript:;"
+    )
+      emptyLinks++;
     else {
-      console.log("Testing " + links[i]);
+      //console.log("Testing " + links[i]);
       result = await page.goto(links[i]);
 
-      console.log(result.status());
+      //console.log(result.status());
       if (result && result.status() === 200)
         passedLinks.push({ status: 200, url: links[i] });
       else failedLinks.push({ status: 404, url: links[i] });
@@ -367,7 +380,7 @@ testURL = async url => {
   const page = await browser.newPage();
 
   let response = await page.goto(url);
-  console.log(response.status() + " : " + url);
+  //console.log(response.status() + " : " + url);
 
   await page.close();
   await browser.close();
