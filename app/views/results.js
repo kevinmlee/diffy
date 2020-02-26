@@ -72,28 +72,30 @@ export default class Results extends Component {
           </div>
 
           <div className="processed-links">
-            <div class="empty">
+            <div className="empty">
               Empty Links: {this.props.state.processedLinks.empty}
             </div>
-            <div class="failed">
+            <div className="failed">
               Failed Links:{" "}
               {this.props.state.processedLinks.failed.length > 0
                 ? this.props.state.processedLinks.failed.map((item, i) => {
                     return (
-                      <div class="failed-item" key={i} answer={item.url}>
-                        {item.status} : {item.url}
+                      <div className="failed-item" key={i} answer={item.url}>
+                        <span className="status">{item.status}</span> :{" "}
+                        <span className="url">{item.url}</span>
                       </div>
                     );
                   })
                 : "0"}
             </div>
-            <div class="passed">
+            <div className="passed">
               Passed Links:{" "}
               {this.props.state.processedLinks.passed.length > 0
                 ? this.props.state.processedLinks.passed.map((item, i) => {
                     return (
-                      <div class="passed-item" key={i} answer={item.url}>
-                        {item.status} : {item.url}
+                      <div className="passed-item" key={i} answer={item.url}>
+                        <span className="status">{item.status}</span> :{" "}
+                        <span className="url">{item.url}</span>
                       </div>
                     );
                   })
