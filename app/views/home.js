@@ -47,8 +47,16 @@ export default class Home extends Component {
   };
 
   async handleSubmit(event) {
-    this.setState({ displayProcessingModal: true });
-    await this.processImages(this.state.url);
+    if (this.state.expectedImage && this.state.url) {
+      this.setState({ displayProcessingModal: true });
+      await this.processImages(this.state.url);
+    } else {
+      this.setState({
+        errorMessage:
+          "Please make sure that the URL you'd like to compare to and the expected result image have been added."
+      });
+      this.setState({ displayErrorModal: true });
+    }
   }
 
   reset = () => {

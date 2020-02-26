@@ -8,7 +8,6 @@ const puppeteer = require("puppeteer"); // headless chrome
 const pixelmatch = require("pixelmatch"); // image diffing
 //const { performance } = require("perf_hooks");
 const sharp = require("sharp"); // image resizer
-const urlExists = require("url-exists");
 
 const app = express();
 
@@ -36,7 +35,8 @@ app.all("/api/processImages", async (req, res) => {
   const { urlToCheck, expectedImageBase64String } = req.body;
 
   // check if URL exists
-  const activeURL = await checkURL(urlToCheck);
+  // const activeURL = await checkURL(urlToCheck);
+  const activeURL = await testURL(urlToCheck);
 
   // const isJPG = expectedImageBase64String.includes("data:image/jpeg");
   // convert image to png
@@ -142,7 +142,7 @@ async function run(url, expectedImageBase64String) {
   hrefs.shift();
 
   // Check for broken links and store them in an array
-  let processedLinks = await testLinks(hrefs);
+  // let processedLinks = await testLinks(hrefs, baseDomain);
 
   /*
   let brokenLinks = new Array();
@@ -157,7 +157,7 @@ async function run(url, expectedImageBase64String) {
     });
   }
   */
-  console.log("processed links", processedLinks);
+  //console.log("processed links", processedLinks);
 
   //console.log("actualBase64String", actualBase64String);
   const actual = await readImage(actualBase64String);
@@ -241,7 +241,7 @@ async function run(url, expectedImageBase64String) {
   // add metrics to results json
   results["performance"] = JSON.parse(metrics);
   //results["processedLinks"] = JSON.parse(processedLinks);
-  results["processedLinks"] = processedLinks;
+  //results["processedLinks"] = processedLinks;
 
   //console.log(results);
 
@@ -327,16 +327,6 @@ function compareScreenshots(expectedResizedBuffer, actualResizedBuffer) {
   });
 }
 
-function checkURL(url) {
-  return new Promise((resolve, reject) => {
-    urlExists(url, function(err, exists) {
-      console.log(url + " exists? ", exists);
-
-      resolve(exists);
-    });
-  });
-}
-
 testLinks = async links => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
@@ -350,12 +340,12 @@ testLinks = async links => {
   //console.log(links);
 
   for (let i = 0, max = links.length; i < max; i++) {
-    if (links[i] === "#") emptyLinks++;
+    if (links[i] === "#" || links[i] === "/") emptyLinks++;
     else {
-      //console.log("Testing " + links[i]);
+      console.log("Testing " + links[i]);
       result = await page.goto(links[i]);
 
-      //console.log(result.status());
+      console.log(result.status());
       if (result && result.status() === 200)
         passedLinks.push({ status: 200, url: links[i] });
       else failedLinks.push({ status: 404, url: links[i] });
@@ -370,4 +360,17 @@ testLinks = async links => {
   processedLinks["passed"] = passedLinks;
 
   return processedLinks;
+};
+
+testURL = async url => {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+
+  let response = await page.goto(url);
+  console.log(response.status() + " : " + url);
+
+  await page.close();
+  await browser.close();
+
+  return response.status() === 200 ? true : false;
 };

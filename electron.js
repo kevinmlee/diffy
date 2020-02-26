@@ -10,7 +10,7 @@ let mainWindow;
 
 function createWindow() {
   mainWindow = new BrowserWindow({ width: 1024, height: 600 });
-  mainWindow.maximize();
+  // mainWindow.maximize();
 
   //mainWindow.loadURL("http://localhost:5000/");
   mainWindow.loadURL(
@@ -22,7 +22,7 @@ function createWindow() {
   );
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 
   // Emitted when the window is closed.
   mainWindow.on("closed", function() {

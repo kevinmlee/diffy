@@ -56,11 +56,9 @@
     "pngjs": "^3.0.0",
     "puppeteer": "^2.1.1",
     "react": "15.4.2",
-    "react-chartjs-2": "^2.8.0",
     "react-dom": "15.4.2",
     "react-dropzone": "^10.2.1",
     "react-router": "3.0.2",
-    "sharp": "^0.24.0",
-    "url-exists": "^1.0.3"
+    "sharp": "^0.24.0"
   }
 }
