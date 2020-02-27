@@ -71,38 +71,6 @@ export default class Results extends Component {
             )}
           </div>
 
-          <div className="processed-links">
-            <div className="empty">
-              Empty Links: {this.props.state.processedLinks.empty}
-            </div>
-            <div className="failed">
-              Failed Links:{" "}
-              {this.props.state.processedLinks.failed.length > 0
-                ? this.props.state.processedLinks.failed.map((item, i) => {
-                    return (
-                      <div className="failed-item" key={i} answer={item.url}>
-                        <span className="status">{item.status}</span> :{" "}
-                        <span className="url">{item.url}</span>
-                      </div>
-                    );
-                  })
-                : "0"}
-            </div>
-            <div className="passed">
-              Passed Links:{" "}
-              {this.props.state.processedLinks.passed.length > 0
-                ? this.props.state.processedLinks.passed.map((item, i) => {
-                    return (
-                      <div className="passed-item" key={i} answer={item.url}>
-                        <span className="status">{item.status}</span> :{" "}
-                        <span className="url">{item.url}</span>
-                      </div>
-                    );
-                  })
-                : "0"}
-            </div>
-          </div>
-
           <table className="c-white">
             <thead>
               <tr>
@@ -140,6 +108,39 @@ export default class Results extends Component {
               </tr>
             </tbody>
           </table>
+
+          <div className="processed-links">
+            <div className="empty">
+              <span className="title">Empty Links: </span>{" "}
+              {this.props.state.processedLinks.empty}
+            </div>
+            <div className="failed">
+              <span className="title">Failed Links: </span>
+              {this.props.state.processedLinks.failed.length > 0
+                ? this.props.state.processedLinks.failed.map((item, i) => {
+                    return (
+                      <div className="failed-item" key={i} answer={item.url}>
+                        <span className="status">{item.status}</span> :{" "}
+                        <span className="url">{item.url}</span>
+                      </div>
+                    );
+                  })
+                : "0"}
+            </div>
+            <div className="passed">
+              <span className="title">Passed Links: </span>
+              {this.props.state.processedLinks.passed.length > 0
+                ? this.props.state.processedLinks.passed.map((item, i) => {
+                    return (
+                      <div className="passed-item" key={i} answer={item.url}>
+                        <span className="status">{item.status}</span> :{" "}
+                        <span className="url">{item.url}</span>
+                      </div>
+                    );
+                  })
+                : "0"}
+            </div>
+          </div>
 
           <div className="btn-container ta-center">
             <button

@@ -31,21 +31,34 @@
   padding: 12px;
   border-radius: 4px;
 }
-#results .processed-links .failed .failed-item:not(:last-child) {
-  margin-top: 15px;
+#results .processed-links .failed .failed-item,
+#results .processed-links .passed .passed-item {
+  margin-top: 5px;
+  border-top: 1px solid #ffffff;
+  padding-top: 5px;
 }
 #results .processed-links .failed .status {
   background-color: #ab0000;
   color: #ffffff;
-  padding: 5px;
+  padding: 2px 5px;
   display: inline-block;
-}
-#results .processed-links .passed .passed-item:not(:last-child) {
-  margin-top: 15px;
 }
 #results .processed-links .passed .status {
   background-color: #9acd32;
   color: #ffffff;
-  padding: 5px;
+  padding: 2px 5px;
   display: inline-block;
+}
+#results .processed-links > div {
+  background-color: rgba(255, 255, 255, 0.5);
+  border: 1px solid #ffffff;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-top: 15px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+#results .btn-container {
+  margin-top: 25px;
 }
